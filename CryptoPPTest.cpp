@@ -21,6 +21,9 @@ using CryptoPP::CTR_Mode;
 //Какие алгоритмы мы хотим использовать?
 #include "..\CryptoPP\gost.h"
 using CryptoPP::GOST;
+#include "GostN.h"
+
+typedef unsigned char byte;
 
 /*
 CryptoPP::SecByteBlock HexDecodeString(const char *hex)
@@ -33,7 +36,7 @@ return result;
 
 
 int main(int argc, char* argv[]) {
-
+	
 	//HMODULE DLL = LoadLibrary(_T("cryptopp.dll"));
 	//
 	// Key and IV setup
@@ -54,16 +57,12 @@ int main(int argc, char* argv[]) {
 	std::cout << "Plain Text (" << plaintext.size() << " bytes)" << std::endl;
 	std::cout << plaintext;
 	std::cout << std::endl << std::endl;
-	int a = 5;
-	int* b = &a;
-	cout << &b << endl;
-	cout << *b << endl;
-
+	
 	//+++ ШИФРОВАНИЕ
-	CryptoPP::GOST::Encryption gostEncryption((unsigned char*)key.c_str(), CryptoPP::GOST::DEFAULT_KEYLENGTH);
-	CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(gostEncryption, (unsigned char*)iv.c_str());
+	CryptoPP::GOST::Encryption gostEncryption((byte*)key.c_str(), CryptoPP::GOST::DEFAULT_KEYLENGTH);
+	CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(gostEncryption, (byte*)iv.c_str());
 	CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(ciphertext));
-	stfEncryptor.Put((const unsigned char*)(plaintext.c_str()), plaintext.length() + 1);
+	stfEncryptor.Put((const byte*)(plaintext.c_str()), plaintext.length() + 1);//Передаем в нашу строчку с и ее длину
 	stfEncryptor.MessageEnd();
 
 	
@@ -76,10 +75,10 @@ int main(int argc, char* argv[]) {
 	
 
 	//+++ ДЕШИФРОВАНИЕ
-	CryptoPP::GOST::Decryption gostDecryption((unsigned char*)key.c_str(), CryptoPP::GOST::DEFAULT_KEYLENGTH);
-	CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(gostDecryption, (unsigned char*)iv.c_str());
+	CryptoPP::GOST::Decryption gostDecryption((byte*)key.c_str(), CryptoPP::GOST::DEFAULT_KEYLENGTH);
+	CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(gostDecryption, (byte*)iv.c_str());
 	CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decryptedtext));
-	stfDecryptor.Put(reinterpret_cast<const unsigned char*>(ciphertext.c_str()), ciphertext.size());
+	stfDecryptor.Put(reinterpret_cast<const byte*>(ciphertext.c_str()), ciphertext.size());
 	stfDecryptor.MessageEnd();
 
 	
